@@ -1,0 +1,23 @@
+[
+{
+  "model": "jwt_auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$180000$emUhpCfutYFo$Jr0Tse5v4J2YDnWmD0N9qwwMKg2nhcfJCXykBIyxF/E=",
+    "last_login": "2020-01-15T19:30:55Z",
+    "is_superuser": true,
+    "username": "mappyplotter",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2020-01-15T19:30:36Z",
+    "email": "mappy@plotter.com",
+    "image": "https://bit.ly/37UONby",
+    "score": 0,
+    "dexterity": "RH",
+    "first_name": "Mappy",
+    "last_name": "Plotter",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]
