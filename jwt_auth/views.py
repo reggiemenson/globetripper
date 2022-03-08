@@ -2,6 +2,7 @@ import jwt
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from rest_framework.request import Request
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,13 +18,18 @@ User = get_user_model()
 
 class RegisterView(APIView):
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         serializer = ValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Registration successful'})
 
-        return Response(serializer.errors, status=422)
+        detail_dict = {
+            'error': 'invalid submission',
+            'detail': serializer.errors
+        }
+
+        return Response(detail_dict, status=422)
 
 
 class LoginView(APIView):
