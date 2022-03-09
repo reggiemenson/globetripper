@@ -9,10 +9,10 @@
     "react"
   ],
   "extends": ["eslint:recommended", "plugin:react/recommended"],
-  "parser": "./node_modules/babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 7,
+    "ecmaVersion": 8,
     "ecmaFeatures": {
       "jsx": true
     }
