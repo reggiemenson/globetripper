@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1646854058458" clover="3.2.0">
+  <project timestamp="1646854058458" name="All files">
+    <metrics statements="15" coveredstatements="9" conditionals="12" coveredconditionals="12" methods="6" coveredmethods="3" elements="33" coveredelements="24" complexity="0" loc="15" ncloc="15" packages="1" files="1" classes="1"/>
+    <file name="RegistrationForm.js" path="/Users/reggiemenson/hello-world/projects/globetripper/frontend/src/components/RegistrationForm.js">
+      <metrics statements="15" coveredstatements="9" conditionals="12" coveredconditionals="12" methods="6" coveredmethods="3"/>
+      <line num="6" count="1" type="stmt"/>
+      <line num="8" count="2" type="stmt"/>
+      <line num="12" count="2" type="stmt"/>
+      <line num="25" count="2" type="stmt"/>
+      <line num="26" count="0" type="stmt"/>
+      <line num="28" count="0" type="stmt"/>
+      <line num="29" count="0" type="stmt"/>
+      <line num="32" count="2" type="stmt"/>
+      <line num="33" count="1" type="stmt"/>
+      <line num="34" count="1" type="stmt"/>
+      <line num="36" count="0" type="stmt"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="38" count="0" type="stmt"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="48" count="2" type="stmt"/>
+    </file>
+  </project>
+</coverage>

@@ -23,7 +23,8 @@ module.exports = {
       { test: /\.css$/, use: ['style-loader', 'css-loader'] },
       { test: /\.s(a|c)ss$/, use: ['style-loader', 'css-loader', 'sass-loader'] },
       { test: /\.woff2?$/, loader: 'file-loader' },
-      { test: /\.(jpg|png|gif)$/, loader: 'file-loader' }
+      { test: /\.(jpg|png|gif)$/, loader: 'file-loader' },
+      { test: /\.tsx?$/, loader: 'ts-loader' }
     ]
   },
   devServer: {
@@ -44,6 +45,7 @@ module.exports = {
     })
   ],
   resolve: {
-    fallback: { fs: false }
+    fallback: { fs: false },
+    extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
   }
 }

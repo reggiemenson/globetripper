@@ -3,7 +3,8 @@
     "browser": true,
     "commonjs": true,
     "es6": true,
-    "node": true
+    "node": true,
+    "jest": true
   },
   "plugins": [
     "react"
@@ -26,7 +27,7 @@
     "space-infix-ops": ["error", {"int32Hint": false}],
     "object-curly-spacing": ["error", "always"],
     "eqeqeq": "warn",
-    "indent": [ "error", 2, { "SwitchCase": 1 } ],
+    "indent": [ "error", 4, { "SwitchCase": 1 } ],
     "key-spacing": [ "error", { "beforeColon": false } ],
     "no-console": "off",
     "no-fallthrough": "warn",

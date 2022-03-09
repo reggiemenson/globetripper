@@ -6,32 +6,30 @@ import '@testing-library/jest-dom'
 import RegistrationForm from '../components/RegistrationForm'
 
 const server = setupServer(
-  rest.get('/register', (req, res, ctx) => {
-    return res(ctx.json({
-      'error': 'invalid submission',
-      'detail': {
-        'username': [{ string: 'This field is required.', code: 'required' }],
-        'first_name': [{ string: 'This field is required.', code: 'required' }],
-        'last_name': [{ string: 'This field is required.', code: 'required' }],
-        'email': [{ string: 'This field is required.', code: 'required' }],
-        'password': [{ string: 'This field is required.', code: 'required' }],
-        'password_confirmation': [{ string: 'This field is required.', code: 'required' }]
-      }
-    }))
-  })
+    rest.post('/api/register', (req, res, ctx) => {
+        return res(
+            ctx.status(422),
+            ctx.json({
+                'username': ['This field is required.'],
+                'first_name': ['This field is required.'],
+                'last_name': ['This field is required.'],
+                'email': ['This field is required.'],
+                'password': ['This field is required.'],
+                'password_confirmation': ['This field is required.']
+            }))
+    })
 )
 
-// beforeAll(() => server.listen())
-// afterEach(() => server.resetHandlers())
-// afterAll(() => server.close())
-//
-// test('displays errors from invalid registration attempt', async () => {
-//   render(<RegistrationForm url="/register" />)
-//
-//   fireEvent.click(screen.getByText('Load Greeting'))
-//
-//   await waitFor(() => screen.getByRole('heading'))
-//
-//   expect(screen.getByRole('heading')).toHaveTextContent('hello there')
-//   expect(screen.getByRole('button')).toBeDisabled()
-// })
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+
+test('displays errors from invalid registration attempt', async () => {
+    render(<RegistrationForm url="/register"/>)
+
+    fireEvent.click(screen.getByText('Register'))
+
+    await waitFor(() => screen.getAllByRole('help-text'))
+
+    expect(screen.getAllByRole('help-text')).toHaveLength(6)
+})
