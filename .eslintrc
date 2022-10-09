@@ -7,9 +7,16 @@
     "jest": true
   },
   "plugins": [
-    "react"
+    "react",
+    "testing-library",
+    "jest-dom"
   ],
-  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "extends": [
+    "eslint:recommended", 
+    "plugin:react/recommended", 
+    "plugin:testing-library/react", 
+    "plugin:jest-dom/recommended"
+],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "sourceType": "module",
@@ -21,7 +28,7 @@
   "rules": {
     "brace-style": "error",
     "camelcase": ["error", { "properties": "never" }],
-    "comma-dangle": ["error", "never"],
+    "comma-dangle": ["error", "es5"],
     "func-call-spacing": ["error", "never"],
     "keyword-spacing": ["error", { "before": true }],
     "space-infix-ops": ["error", {"int32Hint": false}],
@@ -31,9 +38,10 @@
     "key-spacing": [ "error", { "beforeColon": false } ],
     "no-console": "off",
     "no-fallthrough": "warn",
-    "prefer-const": "error",
+    "prefer-const": "warn",
     "quotes": [ "error", "single" ],
     "semi": [ "error", "never" ],
-    "react/prop-types": [ 0 ]
+    "react/prop-types": [ 0 ],
+    "no-unused-vars": [ "warn" ]
   }
 }

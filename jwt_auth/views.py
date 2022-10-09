@@ -1,3 +1,6 @@
+import base64
+from typing import Optional
+
 import jwt
 
 from django.conf import settings
@@ -33,24 +36,25 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         email = request.data.get('email')
         password = request.data.get('password')
         user = self.get_user(email)
 
-        if not user.check_password(password):
+        if not user or user and not user.check_password(password):
             raise AuthenticationFailed()
 
         token = jwt.encode(
             {'sub': user.id}, settings.SECRET_KEY, algorithm='HS256')
+        # serialized_token = base64.b64encode(token)
         return Response({'token': token, 'detail': f'Welcome {user.first_name}!'})
 
     @staticmethod
-    def get_user(email):
+    def get_user(email) -> Optional[User]:
         try:
             return User.objects.get(email=email)
         except User.DoesNotExist:
-            raise AuthenticationFailed()
+            return None
 
 
 class ProfileView(APIView):
