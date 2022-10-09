@@ -8,13 +8,13 @@ class TestRegisterView(APITestCase):
     Tests covering the Register route
     """
 
-    def test_to_GET_method_is_not_allowed(self):
+    def test_GET_method_is_not_allowed(self):
 
         response = self.client.get(reverse('register'))
 
         self.assertEqual(response.status_code, 405)
 
-    def test_successful_registration(self):
+    def test_successful_registration_message_response_code(self):
 
         data = {
             'username': 'topgent',
@@ -27,7 +27,7 @@ class TestRegisterView(APITestCase):
 
         response = self.client.post(reverse('register'), data=data)
 
-        self.assertEqual(response.data.get('message'), 'Registration successful')
+        self.assertEqual(response.data.get('message'), 'registration successful')
         self.assertEqual(response.status_code, 200)
 
     def test_informs_user_of_missing_info_if_not_sent(self):
@@ -43,5 +43,5 @@ class TestRegisterView(APITestCase):
             'password_confirmation': [ErrorDetail(string='This field is required.', code='required')]
         }
 
-        self.assertEqual(response.data.get('detail'), error_dict)
+        self.assertEqual(response.data.get('errors'), error_dict)
         self.assertEqual(response.status_code, 422)

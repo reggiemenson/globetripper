@@ -22,11 +22,11 @@ class RegisterView(APIView):
         serializer = ValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Registration successful'})
+            return Response({'message': 'registration successful'})
 
         detail_dict = {
-            'error': 'invalid submission',
-            'detail': serializer.errors
+            'message': 'invalid submission',
+            'errors': serializer.errors
         }
 
         return Response(detail_dict, status=422)
