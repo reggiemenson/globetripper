@@ -6,7 +6,7 @@ from rest_framework.request import Request
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_204_NO_CONTENT
 
@@ -22,11 +22,10 @@ class RegisterView(APIView):
         serializer = ValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'registration successful'})
+            return Response({'detail': 'Registration successful'})
 
         detail_dict = {
-            'message': 'invalid submission',
-            'errors': serializer.errors
+            'detail': serializer.errors
         }
 
         return Response(detail_dict, status=422)
@@ -34,24 +33,24 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
 
-    def get_user(self, email):
-        try:
-            return User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise ValidationError({'message': 'Invalid credentials'})
-
     def post(self, request):
-
         email = request.data.get('email')
         password = request.data.get('password')
-
         user = self.get_user(email)
+
         if not user.check_password(password):
-            raise ValidationError({'message': 'Invalid credentials'})
+            raise AuthenticationFailed()
 
         token = jwt.encode(
             {'sub': user.id}, settings.SECRET_KEY, algorithm='HS256')
-        return Response({'token': token, 'message': f'Welcome {user.username}!'})
+        return Response({'token': token, 'detail': f'Welcome {user.first_name}!'})
+
+    @staticmethod
+    def get_user(email):
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise AuthenticationFailed()
 
 
 class ProfileView(APIView):
