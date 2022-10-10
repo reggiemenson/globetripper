@@ -5,8 +5,11 @@ from users.models import User
 
 class Town(models.Model):
     name = models.CharField(max_length=255)
+    # maybe change name
     name_ascii = models.CharField(max_length=255)
+    # change to latitude
     lat = models.CharField(max_length=255)
+    # change to longitude
     lng = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     iso2 = models.CharField(max_length=255, null=True)
@@ -27,13 +30,14 @@ class Town(models.Model):
 
 class Trip(models.Model):
     name = models.CharField(max_length=255)
-    start_date = models.DateField(auto_now=False, auto_now_add=False)
-    end_date = models.DateField(auto_now=False, auto_now_add=False)
+    start_date = models.DateField()
+    end_date = models.DateField()
     towns = models.ManyToManyField(
         Town,
         related_name='trips',
         blank=True
     )
+    # text field more appropriate
     notes = models.CharField(max_length=5000, null=True)
     owner = models.ForeignKey(
         User,
@@ -47,6 +51,7 @@ class Trip(models.Model):
 
 class Badge(models.Model):
     name = models.CharField(max_length=50)
+    # text field more appropriate
     description = models.CharField(max_length=300)
     image = models.CharField(max_length=100)
     users = models.ManyToManyField(
@@ -62,6 +67,7 @@ class Badge(models.Model):
 class Group(models.Model):
 
     name = models.CharField(max_length=50)
+    # text field more appropriate
     description = models.CharField(max_length=300)
     image = models.CharField(max_length=500, default='https://cdn.pixabay.com/photo/2014/04/02/10/47/globe-304586_1280.png')
     owner = models.ForeignKey(
@@ -75,11 +81,13 @@ class Group(models.Model):
         related_name='groups_joined',
         blank=True
     )
+    # may review
     requests = models.ManyToManyField(
         User,
         related_name='groups_requested',
         blank=True
     )
+    # the rest of fields are calculated fields
     podium_1_user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

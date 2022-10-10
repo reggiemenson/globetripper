@@ -70,8 +70,6 @@ class TestLogin(AuthTestData):
 
         response = self.client.post(reverse(self.route_name), data=data)
 
-        print(response.data, 'data')
-        assert False
         self.assertIsNotNone(response.data.get('token'))
         self.assertEqual(response.status_code, 200)
 

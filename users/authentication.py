@@ -5,6 +5,7 @@ from users.models import User
 from django.conf import settings
 import jwt
 
+
 class JWTAuthentication(BasicAuthentication):
 
     def authenticate(self, request):
@@ -26,6 +27,4 @@ class JWTAuthentication(BasicAuthentication):
         except User.DoesNotExist:
             raise PermissionDenied({'message': 'No such subject'})
 
-        return (user, token)
-
-        
+        return user, token
