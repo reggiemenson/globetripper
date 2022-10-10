@@ -2,7 +2,7 @@ from django.urls import reverse, reverse_lazy
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APITestCase
 
-from jwt_auth.tests.factories import UserFactory
+from users.tests.factories import UserFactory
 
 
 class AuthTestData(APITestCase):

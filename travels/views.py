@@ -2,18 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_202_ACCEPTED
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from django.contrib.auth import get_user_model
+from users.models import User
 
 from .models import Town, Badge, Trip, Group
 from .serializers import TripSerializer, BadgeSerializer, PopulatedGroupSerializer, TownSerializer, GroupSerializer, PopulatedBadgeSerializer, PopulatedTripSerializer, TownSerializer
 
-User = get_user_model()
-
-# Create your views here.
-
 # TownsView
 # /towns
 # GET all towns: list all towns
+
 
 class TownsView(APIView):
 

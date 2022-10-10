@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from travels.serializers import TownSerializer, TripSerializer, BadgeSerializer, GroupSerializer
-from django.contrib.auth import get_user_model
-User = get_user_model()
+from users.models import User
+
 import django.contrib.auth.password_validation as validations
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError

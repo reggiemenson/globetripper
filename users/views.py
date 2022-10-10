@@ -1,10 +1,8 @@
-import base64
 from typing import Optional
 
 import jwt
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from rest_framework.request import Request
 
 from rest_framework.views import APIView
@@ -14,9 +12,8 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_204_NO_CONTENT
 
 from .badge_logic import get_platform_badges, get_user_badges, get_user_score
+from .models import User
 from .serializers import ValidateSerializer, UserSerializer, PopulatedUserSerializer
-
-User = get_user_model()
 
 
 class RegisterView(APIView):
@@ -46,7 +43,6 @@ class LoginView(APIView):
 
         token = jwt.encode(
             {'sub': user.id}, settings.SECRET_KEY, algorithm='HS256')
-        # serialized_token = base64.b64encode(token)
         return Response({'token': token, 'detail': f'Welcome {user.first_name}!'})
 
     @staticmethod

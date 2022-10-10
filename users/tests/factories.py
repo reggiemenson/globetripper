@@ -1,6 +1,6 @@
 import factory
 
-from jwt_auth.models import User
+from users.models import User
 
 
 class UserFactory(factory.django.DjangoModelFactory):

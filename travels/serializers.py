@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-# from jwt_auth.serializers import UserSerializer
+from users.models import User
+# from users.serializers import UserSerializer
 from .models import Town, Trip, Badge, Group
-User = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
 

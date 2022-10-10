@@ -24,7 +24,6 @@ const Register = ({ toggleRegistration, toggleLogin }) => {
 
     const handleChange = (e) => {
         const data = { ...register.data, [e.target.name]: e.target.value }
-        // const errors = ''
         const errors = { ...register.errors, [e.target.name]: '' }
         setRegister({ data, errors })
     }
@@ -41,8 +40,6 @@ const Register = ({ toggleRegistration, toggleLogin }) => {
             .catch((err) => {
                 const content = err.response.data
                 setRegister({ ...register, errors: content.detail })
-                // console.log('form data!', register.data)
-                // console.log('error data!', err.response.data)
             })
     }
 
@@ -68,9 +65,6 @@ const Register = ({ toggleRegistration, toggleLogin }) => {
                                     <span className="icon is-small is-left">
                                         <i className="fas fa-user"></i>
                                     </span>
-                                    {/* <span className='icon is-small is-right'>
-                  <i className='fas fa-check'></i>
-                </span> */}
                                 </div>
                                 {register.errors.username && (
                                     <small
@@ -80,8 +74,6 @@ const Register = ({ toggleRegistration, toggleLogin }) => {
                                         {register.errors.username[0]}
                                     </small>
                                 )}
-                                {/* can we implement this somehow? */}
-                                {/* <p className='help is-success'>This username is available</p> */}
                             </div>
 
                             <div className="field">
@@ -145,9 +137,6 @@ const Register = ({ toggleRegistration, toggleLogin }) => {
                                     <span className="icon is-small is-left">
                                         <i className="fas fa-envelope"></i>
                                     </span>
-                                    {/* <span className='icon is-small is-right'>
-                  <i className='fas fa-exclamation-triangle'></i>
-                </span> */}
                                 </div>
                                 {register.errors.email && (
                                     <small
