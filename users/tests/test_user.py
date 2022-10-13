@@ -1,11 +1,15 @@
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from travels.tests.factories import TownFactory, BadgeFactory
+from users.models import User
 from users.tests.factories import UserFactory
 
 
 class BaseUserData(APITestCase):
     def setUp(self) -> None:
+        for i in range(1, 218):
+            BadgeFactory(id=i)
         self.users = UserFactory.create_batch(3)
         self.first_user = self.users[0]
         self.auth_client = self.client_class()
@@ -49,7 +53,7 @@ class TestProfileRoute(BaseUserData):
         returned_data = response.data
         self.assertEqual(response.status_code, 200)
         self.assertEqual(returned_data.get('last_name'), 'super-cool')
-        
+
     def test_unauthenticated_access_cannot_delete_user(self):
         response = self.client.delete(reverse('profile'))
 
@@ -61,3 +65,64 @@ class TestProfileRoute(BaseUserData):
 
         # accepted may be a better error code here
         self.assertEqual(response.status_code, 204)
+
+
+class TestGetUserRoutes(BaseUserData):
+    def test_unauthenticated_cannot_retrieve_user_by_id(self):
+        response = self.client.get(reverse('single-user', kwargs={'pk': self.first_user.id}))
+
+        self.assertEqual(response.status_code, 401)
+
+    # Do we want this behaviour?
+    def test_unauthenticated_can_retrieve_user_list(self):
+        response = self.client.get(reverse('users'))
+
+        test_users = User.objects.all()
+        test_user_list = test_users.values_list('id', flat=True)
+
+        self.assertEqual(response.status_code, 200)
+        for obj in response.data:
+            self.assertIn(obj.get('id'), test_user_list)
+
+    def test_retrieve_user_with_passed_id(self):
+        response = self.auth_client.get(reverse('single-user', kwargs={'pk': self.first_user.id}))
+
+        result = response.data
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(result['id'], self.first_user.id)
+
+
+class TestEditUserRoutes(BaseUserData):
+    # update a town with this route
+    def test_unauthenticated_cannot_access_route(self):
+        response = self.client.put(reverse('edit-user'))
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_update_town_successfully(self):
+        mock_towns = TownFactory.create_batch(3)
+        selected_town_ids = [town.id for town in mock_towns][:1]
+        data = {
+            'username': self.first_user.username,
+            'first_name': self.first_user.first_name,
+            'last_name': self.first_user.last_name,
+            'towns': selected_town_ids
+        }
+        response = self.auth_client.put(reverse('edit-user'), data)
+
+        result = response.data
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(result['towns'], selected_town_ids)
+
+    def test_update_with_incorrect_data_raises_expected_response_code(self):
+        data = {
+            'username': self.first_user.username,
+            'first_name': self.first_user.first_name,
+            'last_name': self.first_user.last_name,
+            'towns': [1, 2, 3]
+        }
+        response = self.auth_client.put(reverse('edit-user'), data)
+
+        self.assertEqual(response.status_code, 422)

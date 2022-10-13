@@ -93,10 +93,10 @@ class EditDetailView(APIView):
             initial_user.save()
             new_user = User.objects.get(pk=request.user.id)
             user_data = PopulatedUserSerializer(new_user)
-            
+
             badges = get_user_badges(user_data)
             score = get_user_score(user_data)
-            
+
             test_user = User.objects.get(pk=request.user.id)
             test_user.score = score
             badge_user = UserSerializer(test_user)
