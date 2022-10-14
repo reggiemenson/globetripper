@@ -18,13 +18,13 @@ class BaseUserData(APITestCase):
 
 class TestProfileRoute(BaseUserData):
     def test_unauthenticated_access_cannot_retrieve_user(self):
-        response = self.client.get(reverse('profile'))
+        response = self.client.get(reverse('profile-v1'))
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.data.get('detail'), 'Authentication credentials were not provided.')
 
     def test_can_retrieve_user_details_requested(self):
-        response = self.auth_client.get(reverse('profile'))
+        response = self.auth_client.get(reverse('profile-v1'))
 
         returned_data = response.data
         self.assertEqual(response.status_code, 200)
@@ -36,7 +36,7 @@ class TestProfileRoute(BaseUserData):
             self.assertIsNotNone(returned_data.get(key))
 
     def test_unauthenticated_access_cannot_update_user(self):
-        response = self.client.put(reverse('profile'))
+        response = self.client.put(reverse('profile-v1'))
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.data.get('detail'), 'Authentication credentials were not provided.')
@@ -48,34 +48,34 @@ class TestProfileRoute(BaseUserData):
             'last_name': 'super-cool'
         }
 
-        response = self.auth_client.put(reverse('profile'), data=data)
+        response = self.auth_client.put(reverse('profile-v1'), data=data)
 
         returned_data = response.data
         self.assertEqual(response.status_code, 200)
         self.assertEqual(returned_data.get('last_name'), 'super-cool')
 
     def test_unauthenticated_access_cannot_delete_user(self):
-        response = self.client.delete(reverse('profile'))
+        response = self.client.delete(reverse('profile-v1'))
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.data.get('detail'), 'Authentication credentials were not provided.')
 
     def test_can_delete_user_details(self):
-        response = self.auth_client.delete(reverse('profile'))
+        response = self.auth_client.delete(reverse('profile-v1'))
 
-        # accepted may be a better error code here
         self.assertEqual(response.status_code, 204)
 
 
 class TestGetUserRoutes(BaseUserData):
+    # need tests for incorrect methods
     def test_unauthenticated_cannot_retrieve_user_by_id(self):
-        response = self.client.get(reverse('single-user', kwargs={'pk': self.first_user.id}))
+        response = self.client.get(reverse('users-v1-detail', [self.first_user.id]))
 
         self.assertEqual(response.status_code, 401)
 
     # Do we want this behaviour?
     def test_unauthenticated_can_retrieve_user_list(self):
-        response = self.client.get(reverse('users'))
+        response = self.client.get(reverse('users-v1-list'))
 
         test_users = User.objects.all()
         test_user_list = test_users.values_list('id', flat=True)
@@ -85,7 +85,7 @@ class TestGetUserRoutes(BaseUserData):
             self.assertIn(obj.get('id'), test_user_list)
 
     def test_retrieve_user_with_passed_id(self):
-        response = self.auth_client.get(reverse('single-user', kwargs={'pk': self.first_user.id}))
+        response = self.auth_client.get(reverse('users-v1-detail', [self.first_user.id]))
 
         result = response.data
 
@@ -96,7 +96,7 @@ class TestGetUserRoutes(BaseUserData):
 class TestEditUserRoutes(BaseUserData):
     # update a town with this route
     def test_unauthenticated_cannot_access_route(self):
-        response = self.client.put(reverse('edit-user'))
+        response = self.client.put(reverse('profile-v1-town'))
 
         self.assertEqual(response.status_code, 401)
 
@@ -109,7 +109,7 @@ class TestEditUserRoutes(BaseUserData):
             'last_name': self.first_user.last_name,
             'towns': selected_town_ids
         }
-        response = self.auth_client.put(reverse('edit-user'), data)
+        response = self.auth_client.put(reverse('profile-v1-town'), data)
 
         result = response.data
 
@@ -123,6 +123,6 @@ class TestEditUserRoutes(BaseUserData):
             'last_name': self.first_user.last_name,
             'towns': [1, 2, 3]
         }
-        response = self.auth_client.put(reverse('edit-user'), data)
+        response = self.auth_client.put(reverse('profile-v1-town'), data)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)

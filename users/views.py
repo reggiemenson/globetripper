@@ -3,16 +3,18 @@ from typing import Optional
 import jwt
 
 from django.conf import settings
+from django.http import Http404
+from rest_framework import viewsets
 from rest_framework.request import Request
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_204_NO_CONTENT
+from rest_framework.permissions import IsAuthenticated
 
 from .badge_logic import get_platform_badges, get_user_badges, get_user_score
 from .models import User
+from .permissions import ListOnly
 from .serializers import ValidateSerializer, UserSerializer, PopulatedUserSerializer
 
 
@@ -53,85 +55,43 @@ class LoginView(APIView):
             return None
 
 
-class ProfileView(APIView):
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = PopulatedUserSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'put', 'delete']
 
-    permission_classes = (IsAuthenticated, )
+    def get_object(self):
+        if not self.request.user or not self.request.user.id:
+            raise Http404
+        return self.request.user
 
-    def get(self, request):
-        user = User.objects.get(pk=request.user.id)
-        serialized_user = PopulatedUserSerializer(user)
-        return Response(serialized_user.data)
+    def update_object(self, data, partial=False):
+        instance = self.get_object()
+        serializer = UserSerializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return serializer.instance
 
-        # limited edit user path.
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = UserSerializer
+        return super(ProfileViewSet, self).update(request, *args, **kwargs)
 
-    def put(self, request):
-        initial_user = User.objects.get(pk=request.user.id)
-        updated_user = UserSerializer(initial_user, data=request.data)
-        if updated_user.is_valid():
-            initial_user = updated_user
-            initial_user.save()
-            return Response(initial_user.data)
-        return Response(updated_user.errors, status=HTTP_422_UNPROCESSABLE_ENTITY)
+    def town_update(self, request, *args, **kwargs):
+        serialized_user = self.get_serializer(self.update_object(request.data))
+        award_data = {
+            'badges': get_user_badges(serialized_user),
+            'score': get_user_score(serialized_user),
+        }
+        awarded_serializer = UserSerializer(self.update_object(data=award_data, partial=True))
 
-    def delete(self, request):
-        user = User.objects.get(pk=request.user.id)
-        user.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
-
-        # The following view is for editing the user preference points (badges, towns, etc) that will affect ranking.
-
-
-class EditDetailView(APIView):
-
-    permission_classes = (IsAuthenticated, )
-
-    def put(self, request):
-        initial_user = User.objects.get(pk=request.user.id)
-        updated_user = UserSerializer(initial_user, data=request.data)
-        if updated_user.is_valid():
-            initial_user = updated_user
-            initial_user.save()
-            new_user = User.objects.get(pk=request.user.id)
-            user_data = PopulatedUserSerializer(new_user)
-
-            badges = get_user_badges(user_data)
-            score = get_user_score(user_data)
-
-            test_user = User.objects.get(pk=request.user.id)
-            test_user.score = score
-            badge_user = UserSerializer(test_user)
-            badge_user.data['badges'].clear()
-            badge_user.data['badges'].extend(badges)
-
-            updated_badge_user = UserSerializer(test_user, data=badge_user.data)
-            if updated_badge_user.is_valid():
-                test_user = updated_badge_user
-                test_user.save()
-
-                all_users = User.objects.all()
-                serialized_users = PopulatedUserSerializer(all_users, many=True)
-                get_platform_badges(serialized_users)
-
-                return Response(test_user.data)
-            return Response(updated_badge_user.errors, status=HTTP_422_UNPROCESSABLE_ENTITY)
-        return Response(updated_user.errors, status=HTTP_422_UNPROCESSABLE_ENTITY)
+        serialized_users = PopulatedUserSerializer(User.objects.all(), many=True)
+        get_platform_badges(serialized_users)
+        return Response(awarded_serializer.data)
 
 
-class UserView(APIView):
-
-    permission_classes = (IsAuthenticated, )
-
-    def get(self, request, pk):
-        user = User.objects.get(pk=pk)
-        serialized_user = PopulatedUserSerializer(user)
-        return Response(serialized_user.data)
-    
-
-class UserListView(APIView):
-
-    permission_classes = (IsAuthenticatedOrReadOnly, )
-
-    def get(self, request):
-        users = User.objects.all()
-        serialized_users = PopulatedUserSerializer(users, many=True)
-        return Response(serialized_users.data)
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = PopulatedUserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated | ListOnly]
+    http_method_names = ['get']

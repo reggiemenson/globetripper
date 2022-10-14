@@ -1,7 +1,6 @@
 import factory
-import faker
 
-from travels.constants import REGISTERED_COUNTRIES
+from travels.constants import REGISTERED_COUNTRIES, CONTINENTS
 from travels.models import Town, Badge
 
 
@@ -22,7 +21,7 @@ class TownFactory(factory.django.DjangoModelFactory):
     admin_name = factory.Faker('administrative_unit')
     capital = factory.Faker('city')
     population = factory.Faker('random_int')
-    continent = factory.Faker('country')
+    continent = factory.Sequence(lambda x: CONTINENTS[x % 7])
 
 
 class BadgeFactory(factory.django.DjangoModelFactory):
