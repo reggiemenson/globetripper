@@ -23,4 +23,4 @@ REGISTERED_COUNTRIES = ['Afghanistan', 'Albania', 'Algeria', 'Angola', 'Argentin
                         'Timor-Leste', 'Togo', 'Trinidad And Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Uganda',
                         'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
                         'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe']
-CONTINENTS = ['Africa', 'North America', 'Asia', 'Oceania', 'South America', 'Antarctica', 'Europe']
+CONTINENTS = ['Europe', 'North America', 'South America', 'Asia', 'Africa', 'Oceania', 'Antarctica']

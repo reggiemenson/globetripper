@@ -1,7 +1,7 @@
 import factory
 
 from travels.constants import REGISTERED_COUNTRIES, CONTINENTS
-from travels.models import Town, Badge
+from travels.models import Town, Badge, BadgeConditionGroup
 
 
 class TownFactory(factory.django.DjangoModelFactory):
@@ -11,10 +11,8 @@ class TownFactory(factory.django.DjangoModelFactory):
     name = factory.Faker('city')
     # maybe change name
     name_ascii = factory.Faker('city')
-    # change to latitude
-    lat = factory.Faker('latitude')
-    # change to longitude
-    lng = factory.Faker('longitude')
+    latitude = factory.Faker('latitude')
+    longitude = factory.Faker('longitude')
     country = factory.Sequence(lambda x: REGISTERED_COUNTRIES[x % len(REGISTERED_COUNTRIES)])
     iso2 = factory.Faker('country_code')
     iso3 = factory.Faker('country_code')
@@ -33,3 +31,8 @@ class BadgeFactory(factory.django.DjangoModelFactory):
     image = factory.Faker('url')
 
 
+class BadgeConditionGroupFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BadgeConditionGroup
+
+    name = factory.Faker('name')

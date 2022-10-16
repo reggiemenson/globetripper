@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
+from users.managers import VisitorManager
 
 
 class User(AbstractUser):
+    travellers = VisitorManager()
 
     ORIENTATION = (
         ('LH', 'Left-Handed'),

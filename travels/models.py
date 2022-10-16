@@ -1,5 +1,6 @@
 from django.db import models
 
+from travels.enums import BadgeType
 from users.models import User
 
 
@@ -7,10 +8,8 @@ class Town(models.Model):
     name = models.CharField(max_length=255)
     # maybe change name
     name_ascii = models.CharField(max_length=255)
-    # change to latitude
-    lat = models.CharField(max_length=255)
-    # change to longitude
-    lng = models.CharField(max_length=255)
+    latitude = models.CharField(max_length=255)
+    longitude = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     iso2 = models.CharField(max_length=255, null=True)
     iso3 = models.CharField(max_length=255, null=True)
@@ -37,8 +36,7 @@ class Trip(models.Model):
         related_name='trips',
         blank=True
     )
-    # text field more appropriate
-    notes = models.CharField(max_length=5000, null=True)
+    notes = models.TextField(null=True)
     owner = models.ForeignKey(
         User,
         related_name='trips',
@@ -49,11 +47,22 @@ class Trip(models.Model):
         return f'{self.name}, {self.start_date}/{self.end_date}'
 
 
+class BadgeConditionGroup(models.Model):
+    name = models.CharField(max_length=255)
+
+    @classmethod
+    def get_default_condition(cls):
+        return cls.objects.get_or_create(name='Location Visited')[0].pk
+
+
 class Badge(models.Model):
+
     name = models.CharField(max_length=50)
-    # text field more appropriate
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=255)
     image = models.CharField(max_length=100)
+    type = models.CharField(max_length=20, choices=BadgeType.choices(), default=BadgeType.INDIVIDUAL)
+    condition = models.ForeignKey(BadgeConditionGroup, related_name='badges',
+                                  default=BadgeConditionGroup.get_default_condition, on_delete=models.CASCADE)
     users = models.ManyToManyField(
         User,
         related_name='badges',
@@ -67,8 +76,7 @@ class Badge(models.Model):
 class Group(models.Model):
 
     name = models.CharField(max_length=50)
-    # text field more appropriate
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=255)
     image = models.CharField(max_length=500, default='https://cdn.pixabay.com/photo/2014/04/02/10/47/globe-304586_1280.png')
     owner = models.ForeignKey(
         User,
@@ -119,7 +127,7 @@ class Group(models.Model):
 
 class Image(models.Model):
     image = models.CharField(max_length=100)
-    trip = models.ForeignKey(  # One to many with Posts as well, A Post can have many comments, but a comment can only belong to one Post
+    trip = models.ForeignKey(
         Trip,
         on_delete=models.SET_NULL,
         related_name='images',

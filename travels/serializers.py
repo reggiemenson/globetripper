@@ -55,7 +55,7 @@ class TownSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Town
-        fields = ('id', 'name', 'name_ascii', 'lat', 'lng', 'country', 'iso2', 'iso3', 'continent', 'admin_name', 'capital', 'population', 'visitors')
+        fields = ('id', 'name', 'name_ascii', 'latitude', 'longitude', 'country', 'iso2', 'iso3', 'continent', 'admin_name', 'capital', 'population', 'visitors')
         extra_kwargs = {
             'iso2': {'required': False}, 
             'iso3': {'required': False}, 

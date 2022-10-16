@@ -2,35 +2,49 @@ from decimal import Decimal
 
 from rest_framework.test import APITestCase
 
+from travels.constants import CONTINENTS, REGISTERED_COUNTRIES
 from travels.models import Badge
-from travels.tests.factories import BadgeFactory, TownFactory
-from users.badge_logic import get_user_badges, get_most_countries_badge, get_most_cities_badge, get_most_badges_badge, \
-    get_most_capitals_badge
-from users.models import User
-from users.serializers import PopulatedUserSerializer
+from travels.tests.factories import BadgeFactory, TownFactory, BadgeConditionGroupFactory
+from travels.utils import recalculate_platform_badges, UserVisits
 from users.tests.factories import UserFactory
 
 
 class SetBadgeData(APITestCase):
     def setUp(self) -> None:
-        for i in range(1, 218):
-            BadgeFactory(id=i)
+        self.country_visit_condition = BadgeConditionGroupFactory(name='Countries Visited')
+        self.city_visit_condition = BadgeConditionGroupFactory(name='Cities Visited')
+        for i, name in enumerate(REGISTERED_COUNTRIES):
+            country_id = 1 + i
+            BadgeFactory(id=country_id, name=name)
+
+        for n in range(184, 202):
+            if n < 195:
+                BadgeFactory(id=n, condition=self.country_visit_condition)
+            else:
+                BadgeFactory(id=n, condition=self.city_visit_condition)
+
+        for i, name in enumerate(CONTINENTS[:6]):
+            continent_id = 202 + i
+            BadgeFactory(id=continent_id, name=name)
+
+        for n in range(208, 218):
+            BadgeFactory(id=n)
+
         self.users = UserFactory.create_batch(3)
         self.first_user = self.users[0]
-        self.london = TownFactory(name='London', country='United Kingdom', continent="Europe")
-        self.paris = TownFactory(name='Paris', country='France', continent='Europe')
-        self.tokyo = TownFactory(name='Tokyo', country='Japan', continent='Asia')
-        self.sao_paolo = TownFactory(name='Sao Paolo', country='Brazil', continent='South America')
-        self.cape_town = TownFactory(name='Cape Town', country='South Africa', continent='Africa')
+        self.london = TownFactory(name='London', country='United Kingdom', continent='Europe', latitude='22')
+        self.paris = TownFactory(name='Paris', country='France', continent='Europe', latitude='22')
+        self.tokyo = TownFactory(name='Tokyo', country='Japan', continent='Asia', latitude='22')
+        self.sao_paolo = TownFactory(name='Sao Paolo', country='Brazil', continent='South America', latitude='22')
+        self.cape_town = TownFactory(name='Cape Town', country='South Africa', continent='Africa', latitude='22')
 
 
 class TestUserBadges(SetBadgeData):
 
     def test_user_with_no_towns_assigns_no_badge(self):
-        populated_user = PopulatedUserSerializer(self.first_user)
-        badges = get_user_badges(populated_user)
+        first_user_vists = UserVisits(self.first_user.towns)
 
-        self.assertEqual(len(badges), 0)
+        self.assertEqual(len(first_user_vists.get_awarded_badges()), 0)
 
     def testing_adding_town_adds_country_and_continent_badge(self):
         europe_id = 202
@@ -39,35 +53,35 @@ class TestUserBadges(SetBadgeData):
         self.first_user.towns.add(self.london)
         self.first_user.save()
 
-        populated_user = PopulatedUserSerializer(self.first_user)
-        badges = get_user_badges(populated_user)
+        badges = UserVisits(self.first_user.towns).get_awarded_badges()
+        badge_ids = [badge.id for badge in badges]
 
-        self.assertIn(europe_id, badges)
-        self.assertIn(united_kingdom_id, badges)
+        self.assertIn(europe_id, badge_ids)
+        self.assertIn(united_kingdom_id, badge_ids)
         self.assertEqual(len(badges), 2)
 
     def test_adding_countries_adds_relevant_badges(self):
         # possible bug on multiple runs: Is a unique country always guaranteed with Faker?
-        towns = TownFactory.create_batch(100)
+        towns = TownFactory.create_batch(100, name='one city, many nations')
         for i in range(0, 101, 10):
             self.first_user.towns.add(*towns[i: i + 10])
             self.first_user.save()
             with self.subTest(f"adding {i + 10}"):
-                country_badge_ids = [n for n in range(184, 195)]
-                populated_user = PopulatedUserSerializer(self.first_user)
-                badges = get_user_badges(populated_user)
-                self.assertIn(next(iter(country_badge_ids)), badges)
+                country_badge_ids = self.country_visit_condition.badges.values_list('id', flat=True)
+                badges = UserVisits(self.first_user.towns).get_awarded_badges()
+                badge_ids = [badge.id for badge in badges]
+                self.assertIn(country_badge_ids[i//10], badge_ids)
 
     def test_adding_cities_adds_relevant_badges(self):
-        towns = TownFactory.create_batch(100)
-        for i in range(0, 501, 10):
-            with self.subTest(f"adding {i + 10}"):
-                self.first_user.towns.add(*towns[i: i + 10])
+        towns = TownFactory.create_batch(500)
+        for num, x in enumerate([5, 10, 50, 100, 150, 200, 500]):
+            with self.subTest(f"adding {x}"):
+                self.first_user.towns.add(*towns[:x])
                 self.first_user.save()
-                city_badge_ids = [n for n in range(195, 202)]
-                populated_user = PopulatedUserSerializer(self.first_user)
-                badges = get_user_badges(populated_user)
-                self.assertIn(next(iter(city_badge_ids)), badges)
+                city_badge_ids = self.city_visit_condition.badges.values_list('id', flat=True)
+                badges = UserVisits(self.first_user.towns).get_awarded_badges()
+                badge_ids = [badge.id for badge in badges]
+                self.assertIn(city_badge_ids[num], badge_ids)
 
     def test_special_criteria_badges(self):
         # clean up these tests when refactored
@@ -85,37 +99,37 @@ class TestUserBadges(SetBadgeData):
                 [TownFactory(country='Spain'), TownFactory(country='Portugal'), TownFactory(continent='South America')],
                 TownFactory.create_batch(6, country='United States'),
                 [TownFactory(country='Afghanistan')],
-                [TownFactory(lat=Decimal('67.244262'))],
-                [TownFactory(lat=Decimal('0.244262'), lng=Decimal('-0.244262'))]
+                [TownFactory(latitude=Decimal('67.244262'))],
+                [TownFactory(latitude=Decimal('0.244262'), longitude=Decimal('-0.244262'))]
             ][i]
             with self.subTest(f"if visited {conditions[i]}..."):
                 self.first_user.towns.add(*qualifying_towns)
                 self.first_user.save()
-                city_badge_ids = [n for n in range(208, 214)]
-                populated_user = PopulatedUserSerializer(self.first_user)
-                badges = get_user_badges(populated_user)
-                self.assertIn(city_badge_ids[i], badges)
+                special_badge_ids = [i for i in range(208, 214)]
+                badges = UserVisits(self.first_user.towns).get_awarded_badges()
+                badge_ids = [badge.id for badge in badges]
+                self.assertIn(special_badge_ids[i], badge_ids)
 
 
 class TestPlatformBadges(SetBadgeData):
     def test_user_awarded_for_most_countries(self):
-        towns = TownFactory.create_batch(4)
+        first_set = TownFactory.create_batch(2, country='United Kingdom')
+        second_set = TownFactory.create_batch(2, country="France")
+        third_set = TownFactory.create_batch(2, country="Spain")
         second_user = self.users[1]
 
-        self.first_user.towns.add(towns[0])
-        second_user.towns.add(*towns[1:])
+        self.first_user.towns.add(*first_set, *second_set)  # more cities
+        second_user.towns.add(first_set[0], second_set[0], third_set[0])  # more countries
         self.first_user.save()
         second_user.save()
 
-        all_users = User.objects.all()
-        serialized_users = PopulatedUserSerializer(all_users, many=True)
-        get_most_countries_badge(serialized_users)
+        recalculate_platform_badges()
 
         most_countries_badge = Badge.objects.get(id=214)
         self.assertEqual(most_countries_badge.users.get().id, second_user.id)
 
     def test_user_awarded_for_most_cities(self):
-        towns = TownFactory.create_batch(8)
+        towns = TownFactory.create_batch(8, country='United Kingdom')
         second_user = self.users[1]
 
         self.first_user.towns.add(*towns[2:])
@@ -123,9 +137,7 @@ class TestPlatformBadges(SetBadgeData):
         self.first_user.save()
         second_user.save()
 
-        all_users = User.objects.all()
-        serialized_users = PopulatedUserSerializer(all_users, many=True)
-        get_most_cities_badge(serialized_users)
+        recalculate_platform_badges()
 
         most_cities_badge = Badge.objects.get(id=215)
         self.assertEqual(most_cities_badge.users.get().id, self.first_user.id)
@@ -139,9 +151,7 @@ class TestPlatformBadges(SetBadgeData):
         self.first_user.save()
         second_user.save()
 
-        all_users = User.objects.all()
-        serialized_users = PopulatedUserSerializer(all_users, many=True)
-        get_most_capitals_badge(serialized_users)
+        recalculate_platform_badges()
 
         most_capitals_badge = Badge.objects.get(id=216)
         self.assertEqual(most_capitals_badge.users.get().id, second_user.id)
@@ -156,9 +166,7 @@ class TestPlatformBadges(SetBadgeData):
         self.first_user.save()
         second_user.save()
 
-        all_users = User.objects.all()
-        serialized_users = PopulatedUserSerializer(all_users, many=True)
-        get_most_badges_badge(serialized_users)
+        recalculate_platform_badges()
 
         mega_badge = Badge.objects.get(id=217)
         self.assertEqual(mega_badge.users.get().id, second_user.id)
@@ -172,9 +180,7 @@ class TestPlatformBadges(SetBadgeData):
         self.first_user.save()
         second_user.save()
 
-        all_users = User.objects.all()
-        serialized_users = PopulatedUserSerializer(all_users, many=True)
-        get_most_badges_badge(serialized_users)
+        recalculate_platform_badges()
 
         mega_badge = Badge.objects.get(id=217)
         self.assertEqual(mega_badge.users.get().id, self.first_user.id)

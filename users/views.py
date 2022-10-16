@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 
-from .badge_logic import get_platform_badges, get_user_badges, get_user_score
+from travels.utils import recalculate_platform_badges, UserVisits
 from .models import User
 from .permissions import ListOnly
 from .serializers import ValidateSerializer, UserSerializer, PopulatedUserSerializer
@@ -56,7 +56,6 @@ class LoginView(APIView):
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = PopulatedUserSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'delete']
@@ -66,7 +65,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             raise Http404
         return self.request.user
 
-    def update_object(self, data, partial=False):
+    def _update_object(self, data, partial=False):
         instance = self.get_object()
         serializer = UserSerializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -78,15 +77,15 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return super(ProfileViewSet, self).update(request, *args, **kwargs)
 
     def town_update(self, request, *args, **kwargs):
-        serialized_user = self.get_serializer(self.update_object(request.data))
+        updated_user = self._update_object(request.data)
+        updated_user_info = UserVisits(updated_user.towns.all())
         award_data = {
-            'badges': get_user_badges(serialized_user),
-            'score': get_user_score(serialized_user),
+            'badges': [badge.id for badge in updated_user_info.get_awarded_badges()],
+            'score': updated_user_info.score,
         }
-        awarded_serializer = UserSerializer(self.update_object(data=award_data, partial=True))
+        awarded_serializer = UserSerializer(self._update_object(data=award_data, partial=True))
+        recalculate_platform_badges()
 
-        serialized_users = PopulatedUserSerializer(User.objects.all(), many=True)
-        get_platform_badges(serialized_users)
         return Response(awarded_serializer.data)
 
 
