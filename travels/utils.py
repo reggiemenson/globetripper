@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Union, List
 
-from django.db.models import QuerySet, Value, FloatField
+from django.db.models import FloatField, Value, QuerySet
 from django.db.models.functions import Replace, Cast
 
+from travels.models import Badge, Town
 from users.models import User
-from travels.models import Badge, Town, BadgeConditionGroup
 
 
 def recalculate_platform_badges():
@@ -19,7 +19,7 @@ def recalculate_platform_badges():
         (214, User.travellers.get_leader_by_country(), 'countries_visited'),
         (215, User.travellers.get_leader_by_city(), 'visited_cities'),
         (216, User.travellers.get_leader_by_capital(), 'visited_cities'),
-        (217, User.travellers.get_leader_of_leaders(), 'awards')
+        (217, User.objects.get_leader_of_leaders(), 'awards')
     }
 
     for detail in special_scenarios:
@@ -50,36 +50,38 @@ class UserVisits:
 
     @property
     def country_count_badges(self):
-        try:
-            condition = BadgeConditionGroup.objects.get(name='Countries Visited')
-            visits = self.country_badges.count()
-            badges = condition.badges.all() if visits > 5 else condition.badges.none()
-            if 5 < visits < 100:
-                index = (visits // 10) + 1 if visits > 10 else 1
-                badges = condition.badges.all()[:index]
-            return badges
-        except BadgeConditionGroup.DoesNotExist:
-            return Badge.objects.none()
+        pass
+        # try:
+        #     # condition = BadgeConditionGroup.objects.get(name='Countries Visited')
+        #     visits = self.country_badges.count()
+        #     badges = condition.badges.all() if visits > 5 else condition.badges.none()
+        #     if 5 < visits < 100:
+        #         index = (visits // 10) + 1 if visits > 10 else 1
+        #         badges = condition.badges.all()[:index]
+        #     return badges
+        # except BadgeConditionGroup.DoesNotExist:
+        #     return Badge.objects.none()
 
     @property
     def city_count_badges(self):
-        try:
-            condition = BadgeConditionGroup.objects.get(name='Cities Visited')
-            targets = [5, 10, 50, 100, 150, 200, 500]
-            city_count = self.towns.count()
-            badges = condition.badges.all() if city_count > targets[0] else condition.badges.none()
-            if targets[0] <= city_count < targets[-1]:
-                index = 1
-                for i, target in enumerate(targets):
-                    if city_count >= target:
-                        continue
-                    else:
-                        index += i
-                        break
-                badges = condition.badges.all()[:index]
-            return badges
-        except BadgeConditionGroup.DoesNotExist:
-            return Badge.objects.none()
+        pass
+        # try:
+        #     condition = BadgeConditionGroup.objects.get(name='Cities Visited')
+        #     targets = [5, 10, 50, 100, 150, 200, 500]
+        #     city_count = self.towns.count()
+        #     badges = condition.badges.all() if city_count > targets[0] else condition.badges.none()
+        #     if targets[0] <= city_count < targets[-1]:
+        #         index = 1
+        #         for i, target in enumerate(targets):
+        #             if city_count >= target:
+        #                 continue
+        #             else:
+        #                 index += i
+        #                 break
+        #         badges = condition.badges.all()[:index]
+        #     return badges
+        # except BadgeConditionGroup.DoesNotExist:
+        #     return Badge.objects.none()
 
     @property
     def special_condition_badges(self):

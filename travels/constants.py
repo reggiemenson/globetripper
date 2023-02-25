@@ -24,3 +24,27 @@ REGISTERED_COUNTRIES = ['Afghanistan', 'Albania', 'Algeria', 'Angola', 'Argentin
                         'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
                         'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe']
 CONTINENTS = ['Europe', 'North America', 'South America', 'Asia', 'Africa', 'Oceania', 'Antarctica']
+
+CITY_VISIT_BADGES = {
+    '5': 195,
+    '10': 196,
+    '50': 197,
+    '100': 198,
+    '150': 199,
+    '200': 200,
+    '500': 201
+}
+
+COUNTRY_VISIT_BADGES = {
+    '5': 184,
+    '10': 185,
+    '20': 186,
+    '30': 187,
+    '40': 188,
+    '50': 189,
+    '60': 190,
+    '70': 191,
+    '80': 192,
+    '90': 193,
+    '100': 194,
+}

@@ -1,10 +1,12 @@
 from django.db import models
 
-from travels.enums import BadgeType
+from travels.managers import BadgeAssignmentManager, TownManager
 from users.models import User
 
 
 class Town(models.Model):
+    objects = TownManager()
+
     name = models.CharField(max_length=255)
     # maybe change name
     name_ascii = models.CharField(max_length=255)
@@ -47,22 +49,12 @@ class Trip(models.Model):
         return f'{self.name}, {self.start_date}/{self.end_date}'
 
 
-class BadgeConditionGroup(models.Model):
-    name = models.CharField(max_length=255)
-
-    @classmethod
-    def get_default_condition(cls):
-        return cls.objects.get_or_create(name='Location Visited')[0].pk
-
-
 class Badge(models.Model):
+    objects = BadgeAssignmentManager()
 
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255)
     image = models.CharField(max_length=100)
-    type = models.CharField(max_length=20, choices=BadgeType.choices(), default=BadgeType.INDIVIDUAL)
-    condition = models.ForeignKey(BadgeConditionGroup, related_name='badges',
-                                  default=BadgeConditionGroup.get_default_condition, on_delete=models.CASCADE)
     users = models.ManyToManyField(
         User,
         related_name='badges',

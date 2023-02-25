@@ -1,7 +1,7 @@
 import factory
 
 from travels.constants import REGISTERED_COUNTRIES, CONTINENTS
-from travels.models import Town, Badge, BadgeConditionGroup
+from travels.models import Town, Badge
 
 
 class TownFactory(factory.django.DjangoModelFactory):
@@ -31,8 +31,8 @@ class BadgeFactory(factory.django.DjangoModelFactory):
     image = factory.Faker('url')
 
 
-class BadgeConditionGroupFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = BadgeConditionGroup
-
-    name = factory.Faker('name')
+# class BadgeConditionGroupFactory(factory.django.DjangoModelFactory):
+#     class Meta:
+#         model = BadgeConditionGroup
+#
+#     name = factory.Faker('name')

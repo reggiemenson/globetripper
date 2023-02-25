@@ -53,7 +53,7 @@ class TestRegisterView(AuthTestData):
             'password_confirmation': [ErrorDetail(string='This field is required.', code='required')]
         }
 
-        self.assertEqual(response.data.get('detail'), error_dict)
+        self.assertEqual(response.data, error_dict)
         self.assertEqual(response.status_code, 422)
 
 

@@ -81,7 +81,7 @@ class TestGetUserRoutes(BaseUserData):
         test_user_list = test_users.values_list('id', flat=True)
 
         self.assertEqual(response.status_code, 200)
-        for obj in response.data:
+        for obj in response.data.get('results'):
             self.assertIn(obj.get('id'), test_user_list)
 
     def test_retrieve_user_with_passed_id(self):

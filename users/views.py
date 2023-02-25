@@ -26,11 +26,7 @@ class RegisterView(APIView):
             serializer.save()
             return Response({'detail': 'Registration successful'})
 
-        detail_dict = {
-            'detail': serializer.errors
-        }
-
-        return Response(detail_dict, status=422)
+        return Response(serializer.errors, status=422)
 
 
 class LoginView(APIView):
@@ -78,15 +74,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def town_update(self, request, *args, **kwargs):
         updated_user = self._update_object(request.data)
-        updated_user_info = UserVisits(updated_user.towns.all())
-        award_data = {
-            'badges': [badge.id for badge in updated_user_info.get_awarded_badges()],
-            'score': updated_user_info.score,
-        }
-        awarded_serializer = UserSerializer(self._update_object(data=award_data, partial=True))
+        updated_user.add_awards()
         recalculate_platform_badges()
 
-        return Response(awarded_serializer.data)
+        return Response(UserSerializer(updated_user).data)
 
 
 class UserViewSet(viewsets.ModelViewSet):
