@@ -20,15 +20,12 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
 
-    def add_visits(self, *objs) -> int:
+    def add_visits(self, *objs) -> None:
         self.towns.add(*objs)
-        if self.add_awards():
-            return 1
-        return 0
+        self.add_awards()
 
-    def add_awards(self):
+    def add_awards(self) -> None:
         awarded_badges = self.badges.model.objects.get_qualifying_badges(towns=self.towns)
         self.badges.add(*awarded_badges)
         self.score = self.towns.count_travel_score()
         self.save()
-        return 0

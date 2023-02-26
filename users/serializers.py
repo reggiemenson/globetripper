@@ -6,6 +6,7 @@ import django.contrib.auth.password_validation as validations
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 
+
 class ValidateSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True)
@@ -33,6 +34,7 @@ class ValidateSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'first_name', 'last_name', 'dexterity', 'image', 'email', 'password', 'password_confirmation')
 
+
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -49,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
             'groups_podium2': {'required': False},
             'groups_podium3': {'required': False}
         }
+
 
 class PopulatedUserSerializer(serializers.ModelSerializer):
 

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 
-from travels.utils import recalculate_platform_badges, UserVisits
+from travels.utils import recalculate_platform_badges
 from .models import User
 from .permissions import ListOnly
 from .serializers import ValidateSerializer, UserSerializer, PopulatedUserSerializer
