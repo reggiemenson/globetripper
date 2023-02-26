@@ -6,20 +6,21 @@ from users.tests.factories import UserFactory
 
 
 class TestPlatformBadges(SetBadgeData):
-
     def setUp(self) -> None:
         super().setUp()
         self.users = UserFactory.create_batch(3)
         self.first_user = self.users[0]
 
     def test_user_awarded_for_most_countries(self):
-        first_set = TownFactory.create_batch(2, country='United Kingdom')
+        first_set = TownFactory.create_batch(2, country="United Kingdom")
         second_set = TownFactory.create_batch(2, country="France")
         third_set = TownFactory.create_batch(2, country="Spain")
         second_user = self.users[1]
 
         self.first_user.towns.add(*first_set, *second_set)  # more cities
-        second_user.towns.add(first_set[0], second_set[0], third_set[0])  # more countries
+        second_user.towns.add(
+            first_set[0], second_set[0], third_set[0]
+        )  # more countries
         self.first_user.save()
         second_user.save()
 
@@ -29,7 +30,7 @@ class TestPlatformBadges(SetBadgeData):
         self.assertEqual(most_countries_badge.users.get().id, second_user.id)
 
     def test_user_awarded_for_most_cities(self):
-        towns = TownFactory.create_batch(8, country='United Kingdom')
+        towns = TownFactory.create_batch(8, country="United Kingdom")
         second_user = self.users[1]
 
         self.first_user.towns.add(*towns[2:])
@@ -43,7 +44,7 @@ class TestPlatformBadges(SetBadgeData):
         self.assertEqual(most_cities_badge.users.get().id, self.first_user.id)
 
     def test_user_has_most_capitals(self):
-        towns = TownFactory.create_batch(3, capital='primary')
+        towns = TownFactory.create_batch(3, capital="primary")
         second_user = self.users[1]
 
         self.first_user.towns.add(towns[0])
@@ -57,7 +58,7 @@ class TestPlatformBadges(SetBadgeData):
         self.assertEqual(most_capitals_badge.users.get().id, second_user.id)
 
     def test_user_has_most_badges(self):
-        ''''
+        """'
         Should a user only get the platform badges if they've added towns? or should they
         also be assigned if the badges are directly assigned?
 
@@ -69,7 +70,7 @@ class TestPlatformBadges(SetBadgeData):
         Well we are directly correlating badges with platform badges. This means that the input we want is
         badges and the output we want is a platform badge. If we attribute adding towns to collecting platform badges,
         a change in the way in which badges are assigned will have an unintended side effect on this unit test.
-        '''
+        """
         # failing test shows logic done in the view and can be circumvented. Do we want this?
         # Therefore:
         second_user = self.users[1]

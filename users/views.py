@@ -19,29 +19,26 @@ from .serializers import ValidateSerializer, UserSerializer, PopulatedUserSerial
 
 
 class RegisterView(APIView):
-
     def post(self, request: Request) -> Response:
         serializer = ValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'detail': 'Registration successful'})
+            return Response({"detail": "Registration successful"})
 
         return Response(serializer.errors, status=422)
 
 
 class LoginView(APIView):
-
     def post(self, request: Request) -> Response:
-        email = request.data.get('email')
-        password = request.data.get('password')
+        email = request.data.get("email")
+        password = request.data.get("password")
         user = self.get_user(email)
 
         if not user or user and not user.check_password(password):
             raise AuthenticationFailed()
 
-        token = jwt.encode(
-            {'sub': user.id}, settings.SECRET_KEY, algorithm='HS256')
-        return Response({'token': token, 'detail': f'Welcome {user.first_name}!'})
+        token = jwt.encode({"sub": user.id}, settings.SECRET_KEY, algorithm="HS256")
+        return Response({"token": token, "detail": f"Welcome {user.first_name}!"})
 
     @staticmethod
     def get_user(email) -> Optional[User]:
@@ -54,7 +51,7 @@ class LoginView(APIView):
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PopulatedUserSerializer
     permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'put', 'delete']
+    http_method_names = ["get", "put", "delete"]
 
     def get_object(self):
         if not self.request.user or not self.request.user.id:
@@ -84,4 +81,4 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = PopulatedUserSerializer
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated | ListOnly]
-    http_method_names = ['get']
+    http_method_names = ["get"]
