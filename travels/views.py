@@ -1,3 +1,4 @@
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -7,91 +8,31 @@ from rest_framework.status import (
     HTTP_401_UNAUTHORIZED,
     HTTP_202_ACCEPTED,
 )
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from users.models import User
 
 from .models import Town, Badge, Trip, Group
 from .serializers import (
     TripSerializer,
-    BadgeSerializer,
     PopulatedGroupSerializer,
-    TownSerializer,
     GroupSerializer,
     PopulatedBadgeSerializer,
     PopulatedTripSerializer,
     TownSerializer,
 )
 
-# TownsView
-# /towns
-# GET all towns: list all towns
+
+class TownViewSet(viewsets.ModelViewSet):
+    serializer_class = TownSerializer
+    queryset = Town.objects.all()
+    http_method_names = ["get"]
 
 
-class TownsView(APIView):
-    def get(self, request):
-        towns = Town.objects.all()
-        serializer = TownSerializer(
-            towns,
-            many=True,
-        )
-
-        return Response(serializer.data)
-
-
-# # CountriesView
-# # /countries
-# # GET all countries and number of users who visited
-
-# class CountriesView(APIView):
-
-#     def get(self, request):
-#         towns = Town.objects.all()
-#         serialized_towns = PopulatedTownSerializer(towns, many=True)
-#         print(serialized_towns.data)
-
-#         all_user_countries = list(map(lambda town: town['country'], serialized_towns.data))
-#         unique_user_countries = set(all_user_countries)
-
-#         return Response(unique_user_countries)
-
-# BadgesView
-# /badges
-# GET all badges: list all badges
-
-
-class BadgesView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, _request):
-        badges = Badge.objects.all()
-        serialized_badges = PopulatedBadgeSerializer(badges, many=True)
-        return Response(serialized_badges.data)
-
-
-# IndividualBadgeView
-# /badges/pk
-# PUT badge: posts a user to that badge
-
-
-class IndividualBadgeView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, _request, pk):
-        badge = Badge.objects.get(pk=pk)
-        serialized_badge = PopulatedBadgeSerializer(badge)
-        return Response(serialized_badge.data)
-
-    # def put(self, request, pk):
-    #     request.data['owner'] = request.user.id
-    # # Not sure about this -  we want to select any user -not just the one who is requesting?
-
-    #     badge = Badge.objects.get(pk=pk)
-    #     updated_badge = PopulatedBadgeSerializer(
-    #         badge, data=request.user.id)  # User ID or just User??
-    #     if updated_badge.is_valid():
-    #         updated_badge.save()
-    #         return Response(updated_badge.data)
-    #     return Response(updated_badge.errors, status=HTTP_422_UNPROCESSABLE_ENTITY)
+class BadgeViewSet(viewsets.ModelViewSet):
+    serializer_class = PopulatedBadgeSerializer
+    queryset = Badge.objects.all()
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["get"]
 
 
 # TripsView
