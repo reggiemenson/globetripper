@@ -1,3 +1,5 @@
+from travels.constants import MOST_CAPITALS_VISITED_ID, MOST_CITIES_VISITED_ID, MOST_COUNTRIES_VISITED_ID, \
+    MOST_AWARDS_ID
 from travels.models import Badge
 from travels.tests.factories import BadgeFactory, TownFactory
 from travels.tests.test_badge_filtering import SetBadgeData
@@ -26,7 +28,7 @@ class TestPlatformBadges(SetBadgeData):
 
         recalculate_platform_badges()
 
-        most_countries_badge = Badge.objects.get(id=214)
+        most_countries_badge = Badge.objects.get(id=MOST_COUNTRIES_VISITED_ID)
         self.assertEqual(most_countries_badge.users.get().id, second_user.id)
 
     def test_user_awarded_for_most_cities(self):
@@ -40,7 +42,7 @@ class TestPlatformBadges(SetBadgeData):
 
         recalculate_platform_badges()
 
-        most_cities_badge = Badge.objects.get(id=215)
+        most_cities_badge = Badge.objects.get(id=MOST_CITIES_VISITED_ID)
         self.assertEqual(most_cities_badge.users.get().id, self.first_user.id)
 
     def test_user_has_most_capitals(self):
@@ -54,7 +56,7 @@ class TestPlatformBadges(SetBadgeData):
 
         recalculate_platform_badges()
 
-        most_capitals_badge = Badge.objects.get(id=216)
+        most_capitals_badge = Badge.objects.get(id=MOST_CAPITALS_VISITED_ID)
         self.assertEqual(most_capitals_badge.users.get().id, second_user.id)
 
     def test_user_has_most_badges(self):
@@ -84,7 +86,7 @@ class TestPlatformBadges(SetBadgeData):
 
         recalculate_platform_badges()
 
-        mega_badge = Badge.objects.get(id=217)
+        mega_badge = Badge.objects.get(id=MOST_AWARDS_ID)
         self.assertEqual(mega_badge.users.get().id, second_user.id)
 
     def test_first_user_receives_mega_title_if_drawn(self):
@@ -93,10 +95,8 @@ class TestPlatformBadges(SetBadgeData):
 
         self.first_user.badges.add(*same_badges)
         second_user.badges.add(*same_badges)
-        self.first_user.save()
-        second_user.save()
 
         recalculate_platform_badges()
 
-        mega_badge = Badge.objects.get(id=217)
+        mega_badge = Badge.objects.get(id=MOST_AWARDS_ID)
         self.assertEqual(mega_badge.users.get().id, self.first_user.id)

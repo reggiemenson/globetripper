@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 
-from travels.utils import recalculate_platform_badges
 from .models import User
 from .permissions import ListOnly
 from .serializers import ValidateSerializer, UserSerializer, PopulatedUserSerializer
@@ -72,7 +71,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def town_update(self, request, *args, **kwargs):
         updated_user = self._update_object(request.data)
         updated_user.add_awards()
-        recalculate_platform_badges()
 
         return Response(UserSerializer(updated_user).data)
 

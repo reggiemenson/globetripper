@@ -1,3 +1,5 @@
+from travels.constants import MOST_AWARDS_ID, MOST_CAPITALS_VISITED_ID, MOST_CITIES_VISITED_ID, \
+    MOST_COUNTRIES_VISITED_ID
 from travels.models import Badge
 from users.models import User
 
@@ -13,10 +15,10 @@ def recalculate_platform_badges() -> None:
             award.users.add(user)
 
     special_scenarios = {
-        (214, User.travellers.get_leader_by_country(), "countries_visited"),
-        (215, User.travellers.get_leader_by_city(), "visited_cities"),
-        (216, User.travellers.get_leader_by_capital(), "visited_cities"),
-        (217, User.objects.get_leader_of_leaders(), "awards"),
+        (MOST_COUNTRIES_VISITED_ID, User.travellers.get_leader_by_country(), "countries_visited"),
+        (MOST_CITIES_VISITED_ID, User.travellers.get_leader_by_city(), "visited_cities"),
+        (MOST_CAPITALS_VISITED_ID, User.travellers.get_leader_by_capital(), "visited_cities"),
+        (MOST_AWARDS_ID, User.objects.get_leader_of_leaders(), "awards"),
     }
 
     for detail in special_scenarios:

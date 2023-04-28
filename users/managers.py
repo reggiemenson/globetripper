@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import Count, Max, F
 
+from travels.constants import MOST_AWARDS_ID
+
 
 class VisitorManager(models.Manager):
     def get_queryset(self):
@@ -41,4 +43,4 @@ class CustomUserManager(models.Manager):
         )
 
     def get_leader_of_leaders(self):
-        return self.with_badges().order_by("-awards").first()
+        return self.with_badges().exclude(id=MOST_AWARDS_ID).order_by("-awards", "date_joined").first()
